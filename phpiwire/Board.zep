@@ -42,11 +42,27 @@ class Board
     {
         this->mode(scheme);
         let this->schemeName = [
-            self::WIRINGPI : "WiringPi pin numberings: virtual pin numbers 0 through 16",
-            self::GPIO     : "GPIO pin numbering: direct, no re-mapping - different across board revisions",
-            self::SYSTEM   : "System: uses /sys/class/gpio interface but pins first need exporting via gpio",
-            self::PHYSICAL : "Physical pin numbering: the P1 connector only"
+            self::WIRINGPI : "WiringPi pin numbers (virtual pin numbers 0 through 16)",
+            self::GPIO     : "GPIO pin numbers (direct pin numbers with no re-mapping - different across board revisions)",
+            self::SYSTEM   : "System numbers (uses /sys/class/gpio interface but pins first need exporting via gpio)",
+            self::PHYSICAL : "Physical pin numbers (the P1 connector only)"
         ];
+    }
+
+    /**
+     * String representation of the board
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        var v;
+        let v = this->version();
+
+        return "Model: " . v["model"] . " (rev " . v["revision"]
+            . ") built by " . v["maker"] . ", " . v["memory"]
+            . (v["overvolted"] ? " [OV]" : "") . "\nUsing pin scheme: "
+            . this->schemeName[this->scheme];
     }
 
     /**

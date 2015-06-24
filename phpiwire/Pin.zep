@@ -42,6 +42,8 @@ class Pin
 
     protected id { get };
     protected board { get };
+    protected mode = null;
+    protected modeName = [];
 
     /**
      * Initialize the Pin class
@@ -50,6 +52,24 @@ class Pin
     {
         let this->id = pin;
         let this->board = board;
+        let this->modeName = [
+            self::INPUT   : "Input",
+            self::OUTPUT  : "Output",
+            self::PWM_OUT : "PWM output",
+            self::CLOCK   : "GPIO clock"
+        ];
+    }
+
+    /**
+     * String representation of the pin
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return "Pin " . this->id . ", mode: " . this->is(true) . "\n"
+            . "Digital value: " . this->digitalRead()
+            . ", Analog value: " . this->analogRead() . "\n";
     }
 
     /**
@@ -69,7 +89,18 @@ class Pin
             pinMode(Z_LVAL_P(pinnum), mode);
         }%
 
+        let this->mode = mode;
         return this;
+    }
+
+    /**
+     * Get the pin mode
+     *
+     * @param bool Return the value as a string
+     */
+    public function is(bool! asString = false)
+    {
+        return (asString ? this->modeName[this->mode] : this->mode);
     }
 
     /**
