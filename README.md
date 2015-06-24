@@ -26,7 +26,7 @@ cd wiringPi
 If all goes well you should be able to run the gpio utility:
 
 ```
-git -v
+gpio -v
 ```
 
 Full instructions for [installing wiringPi](http://wiringpi.com/download-and-install/).
