@@ -34,6 +34,7 @@ class Board
 
     protected scheme;
     protected schemeName = [];
+    protected board = [];
 
     /**
      *
@@ -46,6 +47,36 @@ class Board
             self::GPIO     : "GPIO pin numbers (direct pin numbers with no re-mapping - different across board revisions)",
             self::SYSTEM   : "System numbers (uses /sys/class/gpio interface but pins first need exporting via gpio)",
             self::PHYSICAL : "Physical pin numbers (the P1 connector only)"
+        ];
+
+        var ver_model = "", ver_rev = "", ver_maker = "",
+            ver_mem = "", ver_overvolted = "";
+        var int_model = 0, int_rev = 0, int_maker = 0,
+            int_mem = 0, int_overvolted = 0;
+
+        %{
+            char mb[7];
+            int model, rev, maker, mem, overVolted;
+            piBoardId(&model, &rev, &mem, &maker, &overVolted);
+            ZVAL_STRING(ver_model, (char *)piModelNames[model], 1);
+            ZVAL_STRING(ver_rev, (char *)piRevisionNames[rev], 1);
+            ZVAL_STRING(ver_maker, (char *)piMakerNames[maker], 1);
+            sprintf(mb, "%dMB", mem);
+            ZVAL_STRING(ver_mem, mb, 1);
+            ZVAL_BOOL(ver_overvolted, overVolted);
+            ZVAL_LONG(&int_model, model);
+            ZVAL_LONG(&int_rev, rev);
+            ZVAL_LONG(&int_maker, maker);
+            ZVAL_LONG(&int_mem, mem);
+            ZVAL_LONG(&int_overvolted, overVolted);
+        }%
+
+        let this->board = [
+            "model"      : ["val" : int_model,      "desc" : ver_model ],
+            "revision"   : ["val" : int_rev,        "desc" : ver_rev ],
+            "memory"     : ["val" : int_mem,        "desc" : ver_mem ],
+            "maker"      : ["val" : int_maker,      "desc" : ver_maker ],
+            "overvolted" : ["val" : int_overvolted, "desc" : ver_overvolted ]
         ];
     }
 
@@ -106,27 +137,12 @@ class Board
      */
     public function version() -> array
     {
-        var ver_model = "", ver_rev = "", ver_maker = "",
-            ver_mem = "", ver_overvolted = "";
-
-        %{
-            char mb[7];
-            int model, rev, maker, mem, overVolted;
-            piBoardId(&model, &rev, &mem, &maker, &overVolted);
-            ZVAL_STRING(ver_model, (char *)piModelNames[model], 1);
-            ZVAL_STRING(ver_rev, (char *)piRevisionNames[rev], 1);
-            ZVAL_STRING(ver_maker, (char *)piMakerNames[maker], 1);
-            sprintf(mb, "%dMB", mem);
-            ZVAL_STRING(ver_mem, mb, 1);
-            ZVAL_BOOL(ver_overvolted, overVolted);
-        }%
-
         return [
-            "model"      : ver_model,
-            "revision"   : ver_rev,
-            "memory"     : ver_mem,
-            "maker"      : ver_maker,
-            "overvolted" : ver_overvolted
+            "model"      : this->board["model"]["desc"],
+            "revision"   : this->board["revision"]["desc"],
+            "memory"     : this->board["memory"]["desc"],
+            "maker"      : this->board["maker"]["desc"],
+            "overvolted" : this->board["overvolted"]["desc"]
         ];
     }
 

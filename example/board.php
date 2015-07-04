@@ -15,3 +15,4 @@ namespace Phpiwire;
 
 $pi = new Board();
 echo $pi, "\n";
+var_dump($pi->version());
