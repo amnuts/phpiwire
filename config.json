@@ -55,7 +55,7 @@
     "name": "PHPiWire",
     "description": "Control the RaspberryPi GPIO via PHP (with wiringPi)",
     "author": "Andrew Collington (andy@amnuts.com)",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "verbose": false,
     "requires": {
         "extensions": []

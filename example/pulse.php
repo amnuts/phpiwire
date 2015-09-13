@@ -3,7 +3,7 @@
 /**
  * Phpiwire: A PHP wrapper for wiringPi
  *
- * Example of blinking an LED connected to pin 0
+ * Example of using hardware PWM to pulse an LED.
  *
  * @author Andrew Collington, andy@amnuts.com
  * @version 0.1.0
@@ -20,16 +20,23 @@ if (PHP_SAPI !== 'cli') {
 
 set_time_limit(0);
 
-echo "Raspberry Pi blink - use ^C to stop\n";
+echo "Raspberry Pi pulse - use ^C to stop\n";
 
 $pi = new Board();
-$p = $pi->getPin(0)->mode(Pin::OUTPUT);
+$p = $pi->getPin(1)->mode(Pin::PWM_OUT);
+$p->pwmWrite(0);
+
+$sleep = 500;
+$pwmValue = 1024; // 0 min, 1024 max
 
 while (true) {
-    echo "\033[1K\rON";
-    $p->write(Pin::HIGH);
+    for ($i = 0; $i <= $pwmValue; ++$i) {
+        $p->pwmWrite($i);
+        usleep($sleep);
+    }
     sleep(1);
-    echo "\033[1K\rOFF";
-    $p->write(Pin::LOW);
-    sleep(1);
+    for ($i = $pwmValue; $i > 0; --$i) {
+        $p->pwmWrite($i);
+        usleep($sleep);
+    }
 }

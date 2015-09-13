@@ -2,7 +2,7 @@
  * Phpiwire: A PHP wrapper for wiringPi
  *
  * @author Andrew Collington, andy@amnuts.com
- * @version 0.0.1
+ * @version 0.1.0
  * @link https://github.com/amnuts/phpiwire
  * @license MIT, http://acollington.mit-license.org/
  *
@@ -203,6 +203,9 @@ class Pin
                 break;
             case self::ANALOG:
                 %{ analogWrite(pin, value); }%
+                break;
+            case self::PWM:
+                %{ pwmWrite(pin, value); }%
                 break;
         }
 
