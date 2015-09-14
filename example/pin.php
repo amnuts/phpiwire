@@ -6,7 +6,7 @@
  * Checking pin status
  *
  * @author Andrew Collington, andy@amnuts.com
- * @version 0.1.0
+ * @version 0.2.0
  * @link https://github.com/amnuts/phpiwire
  * @license MIT, http://acollington.mit-license.org/
  */

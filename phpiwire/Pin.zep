@@ -2,7 +2,7 @@
  * Phpiwire: A PHP wrapper for wiringPi
  *
  * @author Andrew Collington, andy@amnuts.com
- * @version 0.1.0
+ * @version 0.2.0
  * @link https://github.com/amnuts/phpiwire
  * @license MIT, http://acollington.mit-license.org/
  *
@@ -24,21 +24,23 @@ namespace Phpiwire;
 class Pin
 {
     // read/write types
-    const DIGITAL = 0;
-    const ANALOG  = 1;
-    const PWM     = 2;
+    const DIGITAL  = 0;
+    const ANALOG   = 1;
+    const PWM      = 2;
+    const SOFT_PWM = 3;
     // pin modes
-    const INPUT   = 0;
-    const OUTPUT  = 1;
-    const PWM_OUT = 2;
-    const CLOCK   = 3;
+    const INPUT        = 0;
+    const OUTPUT       = 1;
+    const PWM_OUT      = 2;
+    const CLOCK        = 3;
+    const SOFT_PWM_OUT = 4;
     // pud modes
-    const OFF     = 0;
-    const DOWN    = 1;
-    const UP      = 2;
+    const OFF  = 0;
+    const DOWN = 1;
+    const UP   = 2;
     // values
-    const LOW     = 0;
-    const HIGH    = 1;
+    const LOW  = 0;
+    const HIGH = 1;
 
     protected id { get };
     protected board { get };
@@ -53,10 +55,11 @@ class Pin
         let this->id = pin;
         let this->board = board;
         let this->modeName = [
-            self::INPUT   : "Input",
-            self::OUTPUT  : "Output",
-            self::PWM_OUT : "PWM output",
-            self::CLOCK   : "GPIO clock"
+            self::INPUT        : "Input",
+            self::OUTPUT       : "Output",
+            self::PWM_OUT      : "Hardware PWM output",
+            self::SOFT_PWM_OUT : "Software PWM output",
+            self::CLOCK        : "GPIO clock"
         ];
     }
 
@@ -79,15 +82,28 @@ class Pin
      */
     public function mode(int! mode)
     {
-        if !in_array(mode, [self::INPUT, self::OUTPUT, self::PWM_OUT, self::CLOCK]) {
+        if !in_array(mode, [self::INPUT, self::OUTPUT, self::PWM_OUT, self::SOFT_PWM_OUT, self::CLOCK]) {
             throw new \Exception("Pin mode not supported");
         }
 
         %{
             zval *pinnum;
             zephir_read_property_this(&pinnum, this_ptr, SL("id"), PH_NOISY_CC);
-            pinMode(Z_LVAL_P(pinnum), mode);
         }%
+        if mode == self::SOFT_PWM_OUT {
+            var scheme;
+            let scheme = this->board->getPinScheme();
+            if scheme["scheme"] == Board::SYSTEM {
+                throw new \Exception("Cannot use soft PWM with system number pin layout");
+            }
+            %{
+                softPwmCreate (Z_LVAL_P(pinnum), 0, 100);
+            }%
+        } else {
+            %{
+                pinMode(Z_LVAL_P(pinnum), mode);
+            }%
+        }
 
         let this->mode = mode;
         return this;
@@ -207,6 +223,9 @@ class Pin
             case self::PWM:
                 %{ pwmWrite(pin, value); }%
                 break;
+            case self::SOFT_PWM:
+                %{ softPwmWrite(pin, value); }%
+                break;
         }
 
         return this;
@@ -240,5 +259,15 @@ class Pin
     public function pwmWrite(int! value)
     {
         return this->write(value, self::PWM);
+    }
+
+    /**
+     * Set PWM pin value
+     *
+     * @return var
+     */
+    public function softPwmWrite(int! value)
+    {
+        return this->write(value, self::SOFT_PWM);
     }
 }
