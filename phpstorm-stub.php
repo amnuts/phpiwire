@@ -120,7 +120,7 @@ class Pin
      * @param $pin
      * @param \Phpiwire\Board $board
      */
-    public function __construct($pin, Phpiwire\Board $board) {}
+    public function __construct($pin, Board $board) {}
 
     /**
      * String representation of the pin
@@ -131,11 +131,15 @@ class Pin
 
     /**
      * Get the id of the pin
+     *
+     * @return int
      */
     public function getId() {}
 
     /**
      * Get the board object
+     *
+     * @return Board
      */
     public function getBoard() {}
 
@@ -143,6 +147,7 @@ class Pin
      * Set pin mode
      *
      * @param int
+     * @return $this
      */
     public function mode($mode) {}
 
@@ -161,6 +166,7 @@ class Pin
      * of approximately 50KΩ on the Raspberry Pi.
      *
      * @param int
+     * @return $this
      */
     public function pudMode($mode) {}
 
