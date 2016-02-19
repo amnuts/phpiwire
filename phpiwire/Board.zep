@@ -61,7 +61,7 @@ class Board
             ZVAL_STRING(ver_model, (char *)piModelNames[model], 1);
             ZVAL_STRING(ver_rev, (char *)piRevisionNames[rev], 1);
             ZVAL_STRING(ver_maker, (char *)piMakerNames[maker], 1);
-            sprintf(mb, "%dMB", mem);
+            sprintf(mb, "%dMB", piMemorySize[mem]);
             ZVAL_STRING(ver_mem, mb, 1);
             ZVAL_BOOL(ver_overvolted, overVolted);
             ZVAL_LONG(&int_model, model);
