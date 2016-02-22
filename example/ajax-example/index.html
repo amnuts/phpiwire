@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+Phpiwire: A PHP wrapper for wiringPi
+
+Example of using phpiwire from a browser
+
+@author Andrew Collington, andy@amnuts.com
+@version 0.2.0
+@link https://github.com/amnuts/phpiwire
+@license MIT, http://acollington.mit-license.org/
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ajax example</title>
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <style>
+        .onoffswitch {
+            position: relative; width: 76px;
+            -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+            float: left;
+        }
+        .onoffswitch-checkbox {
+            display: none;
+        }
+        .onoffswitch-label {
+            display: block; overflow: hidden; cursor: pointer;
+            border: 2px solid #999999; border-radius: 0px;
+        }
+        .onoffswitch-inner {
+            display: block; width: 200%; margin-left: -100%;
+            transition: margin 0.3s ease-in 0s;
+        }
+        .onoffswitch-inner:before, .onoffswitch-inner:after {
+            display: block; float: left; width: 50%; height: 23px; padding: 0; line-height: 23px;
+            font-size: 14px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+            box-sizing: border-box;
+        }
+        .onoffswitch-inner:before {
+            content: "High";
+            padding-left: 10px;
+            background-color: #5AC234; color: #FFFFFF;
+        }
+        .onoffswitch-inner:after {
+            content: "Low";
+            padding-right: 10px;
+            background-color: #EEEEEE; color: #999999;
+            text-align: right;
+        }
+        .onoffswitch-switch {
+            display: block; width: 13px; margin: 5px;
+            background: #FFFFFF;
+            position: absolute; top: 0; bottom: 0;
+            right: 49px;
+            border: 2px solid #999999; border-radius: 0px;
+            transition: all 0.3s ease-in 0s;
+        }
+        .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+            margin-left: 0;
+        }
+        .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+            right: 0px;
+        }
+        .onoffswitch ~ p {
+            display: inline-block;
+            margin: 0 0 0 1em;
+            line-height: 1.75em;
+        }
+        .container {
+            position: relative;
+            clear: both;
+            margin-bottom: 1em;
+        }
+
+        #pin0switch .onoffswitch-inner:before, #pin0switch .onoffswitch-inner:after  {
+            content: "Pin 0";
+        }
+        #pin1switch .onoffswitch-inner:before, #pin1switch .onoffswitch-inner:after  {
+            content: "Pin 1";
+        }
+        #pin2switch .onoffswitch-inner:before, #pin2switch .onoffswitch-inner:after  {
+            content: "Pin 2";
+        }
+    </style>
+</head>
+<body>
+
+<h1>Test of activating pins via ajax</h1>
+
+<p>This example needs to run from your web server and shows that the GPIO pins can be toggled via a web interface using an ajax request.</p>
+<p>When the page loads the pins will be set to 0 and you can toggle from there.</p>
+
+<h2>Important</h2>
+
+<p>To get this working on the Raspberry Pi, the PHP binary needs to be added to the sudoers file.  The easiest way to do this is to use the command:</p>
+<pre>sudo visudo</pre>
+<p>and then append this at the bottom of the file and save:</p>
+<pre>www-data ALL=(ALL) NOPASSWD: /usr/bin/php</pre>
+
+<h2>Toggle pin values</h2>
+
+<div id="pin0switch" class="container">
+    <div class="onoffswitch">
+        <input type="checkbox" name="pin" value="0" class="onoffswitch-checkbox" id="pin0">
+        <label class="onoffswitch-label" for="pin0">
+            <span class="onoffswitch-inner"></span>
+            <span class="onoffswitch-switch"></span>
+        </label>
+    </div>
+    <p>Pin reports as <span>0</span></p>
+</div>
+
+<div id="pin1switch" class="container">
+    <div class="onoffswitch">
+        <input type="checkbox" name="pin" value="1" class="onoffswitch-checkbox" id="pin1">
+        <label class="onoffswitch-label" for="pin1">
+            <span class="onoffswitch-inner"></span>
+            <span class="onoffswitch-switch"></span>
+        </label>
+    </div>
+    <p>Pin reports as <span>0</span></p>
+</div>
+
+<div id="pin2switch" class="container">
+    <div class="onoffswitch">
+        <input type="checkbox" name="pin" value="2" class="onoffswitch-checkbox" id="pin2">
+        <label class="onoffswitch-label" for="pin2">
+            <span class="onoffswitch-inner"></span>
+            <span class="onoffswitch-switch"></span>
+        </label>
+    </div>
+    <p>Pin reports as <span>0</span></p>
+</div>
+
+<script>
+function updatePinValues(data) {
+    $.each(data, function(key, val) {
+        $('#pin' + key + 'switch > p > span').text(val);
+    });
+}
+
+$(function(){
+    $.getJSON("control.php", {func: 'reset'}, function(data) {
+        updatePinValues(data);
+    });
+    $('#pin0, #pin1, #pin2').on('change', function() {
+        var pin = $(this).val();
+        var onoff = $(this).is(':checked') ? 1 : 0;
+        $.getJSON("control.php", {func: 'set', pin : pin, onoff : onoff}, function(data) {
+            updatePinValues(data);
+        });
+    });
+});
+</script>
+
+</body>
+</html>
